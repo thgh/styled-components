@@ -41,6 +41,8 @@ type AttrsTarget<
     : FallbackTarget
   : FallbackTarget;
 
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
 export interface Styled<
   R extends Runtime,
   Target extends StyledTarget<R>,
@@ -58,14 +60,17 @@ export interface Styled<
     PrivateAttrsArg extends Attrs<PrivateMergedProps> = Attrs<PrivateMergedProps>,
     PrivateResolvedTarget extends StyledTarget<R> = AttrsTarget<R, PrivateAttrsArg, Target>
   >(
-    attrs: PrivateAttrsArg
+     attrs: PrivateAttrsArg
   ) => Styled<
     R,
     PrivateResolvedTarget,
     PrivateResolvedTarget extends KnownTarget
-      ? Substitute<
-          Substitute<OuterProps, React.ComponentPropsWithRef<PrivateResolvedTarget>>,
-          Props
+      ? PartialBy<
+          Substitute<
+            Substitute<OuterProps, React.ComponentPropsWithRef<PrivateResolvedTarget>>,
+            Props
+          >,
+          keyof PrivateAttrsArg
         >
       : PrivateMergedProps,
     OuterStatics
